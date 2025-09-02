@@ -27,7 +27,7 @@ export default function AudioPlayer({ src, title }: { src: string; title?: strin
     }
   };
 
-  const mime = mimeFromUrl(src);
+  const candidates = getCandidateUrls(src);
 
   return (
     <div className="card" style={{ padding: 24 }}>
@@ -41,7 +41,9 @@ export default function AudioPlayer({ src, title }: { src: string; title?: strin
         onEnded={() => setPlaying(false)}
         onError={() => setError('音频无法播放。请确认浏览器支持该格式，或提供 mp3 / m4a 版本。')}
       >
-        <source src={src} type={mime} />
+        {candidates.map(c => (
+          <source key={c.url} src={c.url} type={c.mime} />
+        ))}
       </audio>
       <div className="row" style={{ gap: 16 }}>
         <button onClick={toggle}>{playing ? '暂停' : '播放'}</button>
@@ -90,4 +92,21 @@ function mimeFromUrl(u: string) {
     case 'webm': return 'audio/webm';
     default: return 'audio/*';
   }
+}
+
+function getCandidateUrls(src: string) {
+  // Derive base without extension
+  const m = src.match(/^(.*)\.([a-z0-9]+)(?:\?|#|$)/i);
+  const base = m ? m[1] : src.replace(/\.?$/, '');
+  const env = (process.env.NEXT_PUBLIC_AUDIO_CANDIDATES || '').trim();
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  const isSafari = /Safari\//.test(ua) && !/Chrome\//.test(ua);
+  let order: string[] = [];
+  if (env) {
+    order = env.split(',').map(s => s.trim()).filter(Boolean);
+  } else {
+    order = isSafari ? ['m4a', 'flac', 'mp3'] : ['flac', 'm4a', 'mp3'];
+  }
+  const unique = Array.from(new Set(order));
+  return unique.map(ext => ({ url: `${base}.${ext}`, mime: mimeFromUrl(`.${ext}`) }));
 }

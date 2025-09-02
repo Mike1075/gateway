@@ -21,6 +21,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=... （docs 中提供）
 NEXT_PUBLIC_R2_PUBLIC_BASE=https://pub-5287116dd02746368327d89efe8ae146.r2.dev
 NEXT_PUBLIC_R2_PREFIX=gateway/
 NEXT_PUBLIC_AUDIO_EXT=flac
+NEXT_PUBLIC_AUDIO_CANDIDATES=flac,m4a,mp3
 ```
 
 ## 开发运行
@@ -50,8 +51,10 @@ NEXT_PUBLIC_AUDIO_EXT=flac
 - 如实际路径/文件名不同，请修改 `src/data/tracks.ts` 中的条目。
 - 浏览器兼容性提示：
   - 桌面 Chrome/Edge 对 FLAC 支持较好，但 Safari/iOS 普遍不支持 FLAC。
-  - 若需全平台兼容，建议提供 `m4a(AAC)` 或 `mp3` 版本，并将 `NEXT_PUBLIC_AUDIO_EXT` 改为对应扩展；或在 R2 中同时上传多种格式并在前端按需切换。
-  - 确认 R2 返回正确的 `Content-Type`（如 `audio/flac`、`audio/mpeg`），并开启 CORS 允许 `GET, HEAD`、`Range` 请求。
+  - 若需全平台兼容且保持无损，建议在 R2 同时提供 FLAC 与 ALAC（m4a 容器）两份文件，并设置 `NEXT_PUBLIC_AUDIO_CANDIDATES` 为 `m4a,flac,mp3`（Safari 首选 m4a/ALAC；其他浏览器首选 flac）。
+  - 本播放器已内置多 `<source>` 自动降级：会根据 `NEXT_PUBLIC_AUDIO_CANDIDATES` 依次尝试不同后缀的同名文件。
+  - 确认 R2 返回正确的 `Content-Type`（如 `audio/flac`、`audio/mp4`、`audio/mpeg`），并开启 CORS 允许 `GET, HEAD`、`Range` 请求。
+  - R2 元数据建议：`Content-Type` 设置为对应音频 MIME；`Content-Disposition`=inline；开启 `Accept-Ranges`；CORS 允许 `Range` 相关头并暴露 `Accept-Ranges, Content-Range, Content-Length`。
 
 ## 页面结构
 
