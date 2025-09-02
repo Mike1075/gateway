@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 
 type Source = { url: string; type?: string };
 
-export default function VideoPlayer({ sources, title }: { sources: Source[]; title?: string }) {
+export default function VideoPlayer({ sources, title, debugLinks }: { sources: Source[]; title?: string; debugLinks?: string[] }) {
   const ref = useRef<HTMLVideoElement | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +16,6 @@ export default function VideoPlayer({ sources, title }: { sources: Source[]; tit
           controls
           playsInline
           preload="metadata"
-          crossOrigin="anonymous"
           onError={() => setError('视频无法播放，请检查链接或 CORS 设置。')}
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         >
@@ -26,9 +25,20 @@ export default function VideoPlayer({ sources, title }: { sources: Source[]; tit
         </video>
       </div>
       {error && (
-        <div className="muted" style={{ color: '#ff8a8a', padding: 12 }}>{error}</div>
+        <div className="muted" style={{ color: '#ff8a8a', padding: 12 }}>
+          {error}
+          {debugLinks && debugLinks.length > 0 && (
+            <div style={{ marginTop: 8 }}>
+              调试：
+              {debugLinks.map((u) => (
+                <a key={u} href={u} target="_blank" rel="noreferrer" style={{ marginLeft: 8 }}>
+                  打开源地址
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
 }
-
