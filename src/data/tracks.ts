@@ -17,7 +17,8 @@ const u = (name: string) => `${base.replace(/\/$/, '')}/${prefix}${name}.${audio
 // Minimal seed listing to demonstrate structure. Add remaining tracks as needed.
 export const tracks: Track[] = [
   // Wave I (示例)
-  { id: 'W1CD1', wave: 'I', cd: 1, title: '发现 #1', url: u('W1CD1') },
+  // 第一个练习改为使用 YouTube 视频播放
+  { id: 'W1CD1', wave: 'I', cd: 1, title: '发现 #1', url: 'https://youtu.be/CFU1EZXIkDY' },
   { id: 'W1CD2', wave: 'I', cd: 2, title: '发现 #2', url: u('W1CD2') },
   { id: 'W1CD3', wave: 'I', cd: 3, title: '发现 #3', url: u('W1CD3') },
 

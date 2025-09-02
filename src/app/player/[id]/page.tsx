@@ -3,8 +3,10 @@ import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { tracks } from '@/data/tracks';
 import AudioPlayer from '@/components/AudioPlayer';
+import YouTubePlayer from '@/components/YouTubePlayer';
 import AuthGate from '@/components/AuthGate';
 import { createBrowserSupabaseClient } from '@/lib/supabaseClient';
+import { useWakeLock } from '@/hooks/useWakeLock';
 
 export default function PlayerPage() {
   const params = useParams();
@@ -13,6 +15,7 @@ export default function PlayerPage() {
   const t = useMemo(() => tracks.find(x => x.id === id), [id]);
   const [intention, setIntention] = useState('');
   const [started, setStarted] = useState(false);
+  const { supported: wakeLockSupported, active: wakeActive, request: requestWake, release: releaseWake } = useWakeLock();
 
   if (!t) return <div className="container">音频未找到：{id}</div>;
 
@@ -43,9 +46,36 @@ export default function PlayerPage() {
           </section>
         ) : (
           <section style={{ minHeight: '60vh', display: 'grid', placeItems: 'center' }}>
-            <AudioPlayer src={t.url} title={`${t.title || t.id}`} />
-            <div className="space" />
-            <button onClick={onFinished}>完成并记录日志</button>
+            {/youtu\.?be|youtube\.com/.test(t.url) ? (
+              <div style={{ width: '100%', maxWidth: 960 }}>
+                <YouTubePlayer url={t.url} title={`${t.title || t.id}`} />
+                <div className="space" />
+                <div className="row" style={{ justifyContent: 'space-between' }}>
+                  <div className="muted">
+                    {wakeLockSupported ? (
+                      <>
+                        屏幕常亮：{wakeActive ? '已开启' : '未开启'}
+                        <span style={{ marginLeft: 8 }} />
+                        {!wakeActive ? (
+                          <button onClick={requestWake}>开启</button>
+                        ) : (
+                          <button onClick={releaseWake}>关闭</button>
+                        )}
+                      </>
+                    ) : (
+                      '此设备不支持屏幕常亮 API，请手动关闭自动锁定以避免播放中断。'
+                    )}
+                  </div>
+                  <button onClick={onFinished}>完成并记录日志</button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <AudioPlayer src={t.url} title={`${t.title || t.id}`} />
+                <div className="space" />
+                <button onClick={onFinished}>完成并记录日志</button>
+              </>
+            )}
           </section>
         )}
       </main>
