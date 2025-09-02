@@ -7,6 +7,7 @@ export default function AudioPlayer({ src, title }: { src: string; title?: strin
   const [volume, setVolume] = useState(0.9);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const a = audioRef.current;
@@ -26,17 +27,22 @@ export default function AudioPlayer({ src, title }: { src: string; title?: strin
     }
   };
 
+  const mime = mimeFromUrl(src);
+
   return (
     <div className="card" style={{ padding: 24 }}>
       {title && <div style={{ marginBottom: 8, fontWeight: 600 }}>{title}</div>}
       <audio
         ref={audioRef}
-        src={src}
+        crossOrigin="anonymous"
         preload="auto"
         onTimeUpdate={e => setTime((e.target as HTMLAudioElement).currentTime)}
         onLoadedMetadata={e => setDuration((e.target as HTMLAudioElement).duration || 0)}
         onEnded={() => setPlaying(false)}
-      />
+        onError={() => setError('音频无法播放。请确认浏览器支持该格式，或提供 mp3 / m4a 版本。')}
+      >
+        <source src={src} type={mime} />
+      </audio>
       <div className="row" style={{ gap: 16 }}>
         <button onClick={toggle}>{playing ? '暂停' : '播放'}</button>
         <div className="muted">{formatTime(time)} / {formatTime(duration)}</div>
@@ -54,6 +60,11 @@ export default function AudioPlayer({ src, title }: { src: string; title?: strin
       </div>
       <div className="space" />
       <div className="muted">为保证最佳效果，已禁用进度拖拽。</div>
+      {error && (
+        <div className="muted" style={{ color: '#ff8a8a', marginTop: 8 }}>
+          {error}
+        </div>
+      )}
     </div>
   );
 }
@@ -65,3 +76,18 @@ function formatTime(s: number) {
   return `${m}:${ss}`;
 }
 
+function mimeFromUrl(u: string) {
+  const m = u.toLowerCase().match(/\.([a-z0-9]+)(?:\?|#|$)/);
+  const ext = m?.[1] || '';
+  switch (ext) {
+    case 'mp3': return 'audio/mpeg';
+    case 'm4a': return 'audio/mp4';
+    case 'aac': return 'audio/aac';
+    case 'flac': return 'audio/flac';
+    case 'wav': return 'audio/wav';
+    case 'ogg': return 'audio/ogg';
+    case 'opus': return 'audio/opus';
+    case 'webm': return 'audio/webm';
+    default: return 'audio/*';
+  }
+}

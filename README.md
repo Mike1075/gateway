@@ -20,6 +20,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=... （docs 中提供）
 # Cloudflare R2 公共访问
 NEXT_PUBLIC_R2_PUBLIC_BASE=https://pub-5287116dd02746368327d89efe8ae146.r2.dev
 NEXT_PUBLIC_R2_PREFIX=gateway/
+NEXT_PUBLIC_AUDIO_EXT=flac
 ```
 
 ## 开发运行
@@ -45,8 +46,12 @@ NEXT_PUBLIC_R2_PREFIX=gateway/
 
 - 常规命名：`W{wave}CD{n}`，比如 `W1CD1.wav`、`W6CD3.wav`。
 - 特例：Wave V 存在第二套（英文）在单独文件夹下（示例配置为 `WaveV_EN/CD1.wav` 等）。
-- 访问 URL 由 `NEXT_PUBLIC_R2_PUBLIC_BASE` + `NEXT_PUBLIC_R2_PREFIX` + 文件名拼接。
+- 访问 URL 由 `NEXT_PUBLIC_R2_PUBLIC_BASE` + `NEXT_PUBLIC_R2_PREFIX` + `文件名.扩展名` 拼接，扩展名可通过 `NEXT_PUBLIC_AUDIO_EXT` 配置（默认 `flac`）。
 - 如实际路径/文件名不同，请修改 `src/data/tracks.ts` 中的条目。
+- 浏览器兼容性提示：
+  - 桌面 Chrome/Edge 对 FLAC 支持较好，但 Safari/iOS 普遍不支持 FLAC。
+  - 若需全平台兼容，建议提供 `m4a(AAC)` 或 `mp3` 版本，并将 `NEXT_PUBLIC_AUDIO_EXT` 改为对应扩展；或在 R2 中同时上传多种格式并在前端按需切换。
+  - 确认 R2 返回正确的 `Content-Type`（如 `audio/flac`、`audio/mpeg`），并开启 CORS 允许 `GET, HEAD`、`Range` 请求。
 
 ## 页面结构
 
@@ -70,4 +75,3 @@ docs/参考文档 下包含 PDF/MD 文件。若需线上访问，请将需要公
 - Onboarding 引导页
 - 更丰富的播放器与背景视觉
 - RLS 与安全审查完善（mentor/group 权限等）
-
