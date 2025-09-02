@@ -1,0 +1,23 @@
+音频文件存放在cloudflare上，访问链接如下：
+
+
+
+S3 API:
+
+https://eedd1736e0526b6b726adde7e8b73dad.r2.cloudflarestorage.com/gateway
+
+**Public Development URL**
+
+[https://pub-5287116dd02746368327d89efe8ae146.r2.dev](https://pub-5287116dd02746368327d89efe8ae146.r2.dev)
+
+
+
+Supabase ：
+
+NEXT_PUBLIC_SUPABASE_URL=https://mdtcofecutbqmoozqgfq.supabase.co
+
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kdGNvZmVjdXRicW1vb3pxZ2ZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NzkyMzUsImV4cCI6MjA3MjM1NTIzNX0.UwaVxvG1m5M5Pmr6ITWzuIUetYaMn1TH1Zk7aD4prXA
+
+service_role_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kdGNvZmVjdXRicW1vb3pxZ2ZxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1Njc3OTIzNSwiZXhwIjoyMDcyMzU1MjM1fQ.3ZTcGgcDwLKpFgd8-SoBA_85odHkVx26p2iIUa1aU-w
+
+Github URL=https://github.com/Mike1075/gateway.git
