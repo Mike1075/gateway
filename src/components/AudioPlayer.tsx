@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 
-export default function AudioPlayer({ src, title }: { src: string; title?: string }) {
+type Props = { src: string; title?: string; sources?: string[] };
+
+export default function AudioPlayer({ src, title, sources }: Props) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(0.9);
@@ -27,7 +29,8 @@ export default function AudioPlayer({ src, title }: { src: string; title?: strin
     }
   };
 
-  const candidates = getCandidateUrls(src);
+  const bases = [src, ...(sources || [])];
+  const candidates = dedupe(bases.flatMap(getCandidateUrls));
 
   return (
     <div className="card" style={{ padding: 24 }}>
@@ -109,4 +112,15 @@ function getCandidateUrls(src: string) {
   }
   const unique = Array.from(new Set(order));
   return unique.map(ext => ({ url: `${base}.${ext}`, mime: mimeFromUrl(`.${ext}`) }));
+}
+
+function dedupe<T extends { url: string }>(arr: T[]): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const x of arr) {
+    if (seen.has(x.url)) continue;
+    seen.add(x.url);
+    out.push(x);
+  }
+  return out;
 }
