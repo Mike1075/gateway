@@ -1,14 +1,15 @@
 "use client";
+export const dynamic = 'force-dynamic';
 import { useState } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabaseClient';
 
 export default function AdminPage() {
-  const supabase = createBrowserSupabaseClient();
   const [userId, setUserId] = useState('');
   const [status, setStatus] = useState<string | null>(null);
 
   const toggleLibrary = async (value: boolean) => {
     if (!userId) return setStatus('请输入用户ID');
+    const supabase = createBrowserSupabaseClient();
     const { data, error } = await supabase.from('profiles').upsert({ id: userId, library_unlocked: value }, { onConflict: 'id' }).select();
     if (error) setStatus('失败：' + error.message);
     else setStatus('已更新: ' + JSON.stringify(data?.[0] || {}));
@@ -33,4 +34,3 @@ export default function AdminPage() {
     </main>
   );
 }
-

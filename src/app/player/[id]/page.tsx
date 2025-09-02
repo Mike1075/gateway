@@ -16,7 +16,6 @@ export default function PlayerPage() {
 
   if (!t) return <div className="container">音频未找到：{id}</div>;
 
-  const supabase = createBrowserSupabaseClient();
 
   const onSaveIntent = async () => {
     // Store intention temporarily in localStorage; it will be prefilled on journal page
@@ -53,4 +52,3 @@ export default function PlayerPage() {
     </AuthGate>
   );
 }
-

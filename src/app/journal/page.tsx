@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabaseClient';
 
@@ -6,9 +7,9 @@ type Journal = { id: string; created_at: string; title: string; track_id: string
 
 export default function JournalListPage() {
   const [items, setItems] = useState<Journal[]>([]);
-  const supabase = createBrowserSupabaseClient();
   useEffect(() => {
     (async () => {
+      const supabase = createBrowserSupabaseClient();
       const { data: session } = await supabase.auth.getSession();
       const userId = session.session?.user.id;
       if (!userId) return;
@@ -32,4 +33,3 @@ export default function JournalListPage() {
     </main>
   );
 }
-

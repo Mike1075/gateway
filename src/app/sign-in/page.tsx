@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 import { useState } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
@@ -6,7 +7,6 @@ import Link from 'next/link';
 
 export default function SignInPage() {
   const router = useRouter();
-  const supabase = createBrowserSupabaseClient();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -16,6 +16,7 @@ export default function SignInPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    const supabase = createBrowserSupabaseClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) return setError(error.message);
@@ -36,4 +37,3 @@ export default function SignInPage() {
     </main>
   );
 }
-
