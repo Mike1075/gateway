@@ -1,15 +1,16 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 
-type Props = { src: string; title?: string; sources?: string[] };
+type Props = { src: string; title?: string; sources?: string[]; debugLinks?: string[] };
 
-export default function AudioPlayer({ src, title, sources }: Props) {
+export default function AudioPlayer({ src, title, sources, debugLinks }: Props) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(0.9);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const clearError = () => setError(null);
 
   useEffect(() => {
     const a = audioRef.current;
@@ -40,7 +41,9 @@ export default function AudioPlayer({ src, title, sources }: Props) {
         crossOrigin="anonymous"
         preload="auto"
         onTimeUpdate={e => setTime((e.target as HTMLAudioElement).currentTime)}
-        onLoadedMetadata={e => setDuration((e.target as HTMLAudioElement).duration || 0)}
+        onLoadedMetadata={e => { setDuration((e.target as HTMLAudioElement).duration || 0); clearError(); }}
+        onCanPlay={clearError}
+        onPlay={clearError}
         onEnded={() => setPlaying(false)}
         onError={() => setError('音频无法播放。请确认浏览器支持该格式，或提供 mp3 / m4a 版本。')}
       >
@@ -68,6 +71,14 @@ export default function AudioPlayer({ src, title, sources }: Props) {
       {error && (
         <div className="muted" style={{ color: '#ff8a8a', marginTop: 8 }}>
           {error}
+          {debugLinks && debugLinks.length > 0 && (
+            <span>
+              
+              {debugLinks.map((u, i) => (
+                <a key={u+String(i)} href={u} target="_blank" rel="noreferrer" style={{ marginLeft: 8 }}>打开源地址</a>
+              ))}
+            </span>
+          )}
         </div>
       )}
     </div>

@@ -56,6 +56,7 @@ export default function PlayerPage() {
                   title={`${t.title || t.id}`}
                   src={buildR2AudioSources(t.id)[0] || ''}
                   sources={buildR2AudioSources(t.id)}
+                  debugLinks={buildR2AudioSources(t.id).slice(0, 3)}
                 />
                 <div className="space" />
                 <div className="row" style={{ justifyContent: 'space-between' }}>
