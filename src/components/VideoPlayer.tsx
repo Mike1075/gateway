@@ -6,6 +6,7 @@ type Source = { url: string; type?: string };
 export default function VideoPlayer({ sources, title, debugLinks }: { sources: Source[]; title?: string; debugLinks?: string[] }) {
   const ref = useRef<HTMLVideoElement | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const clearError = () => setError(null);
 
   return (
     <div className="card" style={{ padding: 0 }}>
@@ -16,6 +17,9 @@ export default function VideoPlayer({ sources, title, debugLinks }: { sources: S
           controls
           playsInline
           preload="metadata"
+          onLoadedMetadata={clearError}
+          onCanPlay={clearError}
+          onPlay={clearError}
           onError={() => setError('视频无法播放，请检查链接或 CORS 设置。')}
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         >
