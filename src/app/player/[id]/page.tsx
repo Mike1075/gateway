@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { tracks } from '@/data/tracks';
 import AudioPlayer from '@/components/AudioPlayer';
 import YouTubePlayer from '@/components/YouTubePlayer';
+import VideoPlayer from '@/components/VideoPlayer';
 import BiliPlayer from '@/components/BiliPlayer';
 import AuthGate from '@/components/AuthGate';
 import { createBrowserSupabaseClient } from '@/lib/supabaseClient';
@@ -16,6 +17,7 @@ export default function PlayerPage() {
   const t = useMemo(() => tracks.find(x => x.id === id), [id]);
   const [intention, setIntention] = useState('');
   const [started, setStarted] = useState(false);
+  const [preferR2, setPreferR2] = useState(false);
   const { supported: wakeLockSupported, active: wakeActive, request: requestWake, release: releaseWake } = useWakeLock();
 
   if (!t) return <div className="container">音频未找到：{id}</div>;
@@ -47,7 +49,39 @@ export default function PlayerPage() {
           </section>
         ) : (
           <section style={{ minHeight: '60vh', display: 'grid', placeItems: 'center' }}>
-            {/bilibili\.com/.test(t.url) ? (
+            {preferR2 ? (
+              <div style={{ width: '100%', maxWidth: 960 }}>
+                <VideoPlayer
+                  title={`${t.title || t.id}`}
+                  sources={[
+                    { url: `${(process.env.NEXT_PUBLIC_R2_PUBLIC_BASE || '').replace(/\/$/, '')}/${t.id}.mp4`, type: 'video/mp4' },
+                    { url: `${(process.env.NEXT_PUBLIC_R2_PUBLIC_BASE || '').replace(/\/$/, '')}/${process.env.NEXT_PUBLIC_R2_PREFIX || ''}${t.id}.mp4`, type: 'video/mp4' },
+                  ]}
+                />
+                <div className="space" />
+                <div className="row" style={{ justifyContent: 'space-between' }}>
+                  <div className="muted">
+                    {wakeLockSupported ? (
+                      <>
+                        屏幕常亮：{wakeActive ? '已开启' : '未开启'}
+                        <span style={{ marginLeft: 8 }} />
+                        {!wakeActive ? (
+                          <button onClick={requestWake}>开启</button>
+                        ) : (
+                          <button onClick={releaseWake}>关闭</button>
+                        )}
+                      </>
+                    ) : (
+                      '此设备不支持屏幕常亮 API，请手动关闭自动锁定以避免播放中断。'
+                    )}
+                  </div>
+                  <div className="row" style={{ gap: 8 }}>
+                    <button onClick={() => setPreferR2(false)}>切换到平台视频</button>
+                    <button onClick={onFinished}>完成并记录日志</button>
+                  </div>
+                </div>
+              </div>
+            ) : /bilibili\.com/.test(t.url) ? (
               <div style={{ width: '100%', maxWidth: 960 }}>
                 <BiliPlayer url={t.url} title={`${t.title || t.id}`} />
                 <div className="space" />
@@ -67,7 +101,10 @@ export default function PlayerPage() {
                       '此设备不支持屏幕常亮 API，请手动关闭自动锁定以避免播放中断。'
                     )}
                   </div>
-                  <button onClick={onFinished}>完成并记录日志</button>
+                  <div className="row" style={{ gap: 8 }}>
+                    {t.wave === 'I' && <button onClick={() => setPreferR2(true)}>切换到 R2 视频</button>}
+                    <button onClick={onFinished}>完成并记录日志</button>
+                  </div>
                 </div>
               </div>
             ) : /youtu\.?be|youtube\.com/.test(t.url) ? (
@@ -90,14 +127,20 @@ export default function PlayerPage() {
                       '此设备不支持屏幕常亮 API，请手动关闭自动锁定以避免播放中断。'
                     )}
                   </div>
-                  <button onClick={onFinished}>完成并记录日志</button>
+                  <div className="row" style={{ gap: 8 }}>
+                    {t.wave === 'I' && <button onClick={() => setPreferR2(true)}>切换到 R2 视频</button>}
+                    <button onClick={onFinished}>完成并记录日志</button>
+                  </div>
                 </div>
               </div>
             ) : (
               <>
                 <AudioPlayer src={t.url} title={`${t.title || t.id}`} />
                 <div className="space" />
-                <button onClick={onFinished}>完成并记录日志</button>
+                <div className="row" style={{ gap: 8 }}>
+                  {t.wave === 'I' && <button onClick={() => setPreferR2(true)}>切换到 R2 视频</button>}
+                  <button onClick={onFinished}>完成并记录日志</button>
+                </div>
               </>
             )}
           </section>
