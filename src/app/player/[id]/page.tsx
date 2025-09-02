@@ -53,10 +53,7 @@ export default function PlayerPage() {
               <div style={{ width: '100%', maxWidth: 960 }}>
                 <VideoPlayer
                   title={`${t.title || t.id}`}
-                  sources={[
-                    { url: `${(process.env.NEXT_PUBLIC_R2_PUBLIC_BASE || '').replace(/\/$/, '')}/${t.id}.mp4`, type: 'video/mp4' },
-                    { url: `${(process.env.NEXT_PUBLIC_R2_PUBLIC_BASE || '').replace(/\/$/, '')}/${process.env.NEXT_PUBLIC_R2_PREFIX || ''}${t.id}.mp4`, type: 'video/mp4' },
-                  ]}
+                  sources={buildR2Sources(t.id)}
                 />
                 <div className="space" />
                 <div className="row" style={{ justifyContent: 'space-between' }}>
@@ -148,4 +145,20 @@ export default function PlayerPage() {
       </main>
     </AuthGate>
   );
+}
+// Build candidate R2 URLs for Wave I files where filenames include a prefix like
+// "Gateway "+id or the first file typo "Gatewat W1CD1.mp4". Spaces must be encoded.
+function buildR2Sources(id: string) {
+  const base = (process.env.NEXT_PUBLIC_R2_PUBLIC_BASE || '').replace(/\/$/, '');
+  const prefix = process.env.NEXT_PUBLIC_R2_PREFIX || '';
+  const names = [`${id}.mp4`, `Gateway ${id}.mp4`];
+  if (id === 'W1CD1') names.unshift('Gatewat W1CD1.mp4');
+  const enc = (s: string) => encodeURIComponent(s).replace(/%2F/g, '/');
+  const urls: { url: string; type: string }[] = [];
+  for (const n of names) {
+    urls.push({ url: `${base}/${enc(n)}`, type: 'video/mp4' });
+    urls.push({ url: `${base}/${prefix}${enc(n)}`, type: 'video/mp4' });
+  }
+  const seen = new Set<string>();
+  return urls.filter(u => (seen.has(u.url) ? false : (seen.add(u.url), true)));
 }
