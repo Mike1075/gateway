@@ -192,13 +192,35 @@ function buildR2VideoSources(id: string) {
 function buildR2AudioSources(id: string) {
   const base = (process.env.NEXT_PUBLIC_R2_PUBLIC_BASE || '').replace(/\/$/, '');
   const prefix = process.env.NEXT_PUBLIC_R2_PREFIX || '';
-  const exts = (process.env.NEXT_PUBLIC_AUDIO_CANDIDATES || 'm4a,flac,mp3').split(',').map(s => s.trim()).filter(Boolean);
+  const exts = (process.env.NEXT_PUBLIC_AUDIO_CANDIDATES || 'm4a,flac,mp3')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  // Known directories that可能包含音频（根据你的描述与截图）
+  const dirs = [
+    '',
+    prefix,
+    '中英文双语引导无损音频/',
+    `${prefix}中英文双语引导无损音频/`,
+    'gatewaym4a/',
+    `${prefix}gatewaym4a/`,
+  ];
+
   const urls: string[] = [];
   for (const ext of exts) {
-    urls.push(`${base}/${prefix}${id}.${ext}`);
-    urls.push(`${base}/${id}.${ext}`);
+    for (const dir of dirs) {
+      const encodedDir = encodePath(dir);
+      const file = encodeURIComponent(`${id}.${ext}`);
+      urls.push(`${base}/${encodedDir}${file}`);
+    }
   }
   const seen = new Set<string>();
   return urls.filter(u => (seen.has(u) ? false : (seen.add(u), true)));
 }
 
+function encodePath(p: string) {
+  if (!p) return '';
+  const parts = p.split('/').filter(Boolean).map(encodeURIComponent);
+  return parts.length ? parts.join('/') + '/' : '';
+}
