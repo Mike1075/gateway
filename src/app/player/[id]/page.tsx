@@ -193,10 +193,18 @@ function buildR2VideoSources(id: string) {
 function buildR2AudioSources(id: string) {
   const base = (process.env.NEXT_PUBLIC_R2_PUBLIC_BASE || '').replace(/\/$/, '');
   const prefix = process.env.NEXT_PUBLIC_R2_PREFIX || '';
-  const exts = (process.env.NEXT_PUBLIC_AUDIO_CANDIDATES || 'm4a,flac,mp3')
+  const baseExts = (process.env.NEXT_PUBLIC_AUDIO_CANDIDATES || 'm4a,flac,mp3')
     .split(',')
     .map(s => s.trim())
     .filter(Boolean);
+  // Try both lower-case and UPPER-CASE variants to match object keys like "W1CD1.FLAC"
+  const exts: string[] = [];
+  for (const e of baseExts) {
+    const lo = e.toLowerCase();
+    const up = e.toUpperCase();
+    if (!exts.includes(lo)) exts.push(lo);
+    if (!exts.includes(up)) exts.push(up);
+  }
 
   // Known directories that可能包含音频（根据你的描述与截图）
   const dirs = [
